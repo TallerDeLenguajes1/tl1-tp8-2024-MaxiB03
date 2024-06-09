@@ -1,96 +1,92 @@
 ﻿// See https://aka.ms/new-console-template for more information
-int resp;
-var TareasPendientes = new List<Tarea>();
-var TareasRealizadas = new List<Tarea>();
+using EspacioCalculadora;
+var calculadora = new Calculadora();
+var ListaOperaciones = new List<Operacion>();
 
-int cantidadDeTareas=(new Random()).Next(6);
+int num, op;
+bool controlOP, controlNUM;
+double anterior;
 
-TareasPendientes=CrearListaDeTareas(cantidadDeTareas);
-var copiaTareasPendientes = new List<Tarea>(TareasPendientes);
-
-Console.WriteLine("Cantidad Total de Tareas: "+ TareasPendientes.Count);
-
-foreach (var tarea in copiaTareasPendientes)
+do
 {
-    tarea.ShowTarea();
+    Console.WriteLine("==============");
+    Console.WriteLine("1- Sumar");
+    Console.WriteLine("2- Restar");
+    Console.WriteLine("3- Multiplicar");
+    Console.WriteLine("4- Dividir");
+    Console.WriteLine("5- Limpiar");
+    Console.WriteLine("0- Salir");
+    Console.WriteLine("==============");
 
-    Console.WriteLine("Realizo la tarea? (Si=1) (No=0)");
-    bool control = int.TryParse(Console.ReadLine(), out resp);
-
-    if(control)
+    do
     {
-        if(resp==1)
+        Console.WriteLine("Ingrese una Operacion: ");
+        controlOP=int.TryParse(Console.ReadLine(), out op);
+        if(controlOP==false)
         {
-            tarea.Estado = EstadoTarea.Completada;
-            TareasRealizadas.Add(tarea);
-            TareasPendientes.Remove(tarea);
+            Console.WriteLine("Operacion Ingresada Incorrecta, Ingrese nuevamente");
         }
+    } while (controlOP==false || op<0 || op>5);
 
-    }else{
-        Console.WriteLine("Respuesta mal ingresada");
-    }
-
-    Console.WriteLine("-----------");
-}
-
-Console.WriteLine("--- TAREAS PENDIENTES ---");
-foreach (var tarea in TareasPendientes)
-{
-    tarea.ShowTarea();
-    Console.WriteLine("-----------");
-}
-
-Console.WriteLine("--- TAREAS REALIZADAS ---");
-foreach (var tarea in TareasRealizadas)
-{
-    tarea.ShowTarea();
-    Console.WriteLine("-----------");
-}
-
-Console.WriteLine("Ingrese una Descripcion para buscar una tarea: ");
-string? descrip=Console.ReadLine();
-
-Tarea? tareaBuscada = BuscarTarea(TareasPendientes, TareasRealizadas, descrip);
-
-if(tareaBuscada!=null)
-{
-    Console.WriteLine("--- TAREAS ENCONTRADA ---");
-    tareaBuscada.ShowTarea();
-}else{
-    Console.WriteLine("--- TAREAS NO ENCONTRADA ---");
-}
-
-//Funcion para crear la Lista de N Tareas
-List<Tarea> CrearListaDeTareas(int cantidad)
-{
-    var Tareas = new List<Tarea>();
-    for (int i=0;i<cantidad;i++)
+    if(op!=0)
     {
-        var tarea = new Tarea(i+1, $"Descripcion {i}", (new Random()).Next(10,101), EstadoTarea.Pendiente);
-        Tareas.Add(tarea);
-    }
-
-    return Tareas;
-}
-
-//Funcion para Buscar Tarea por Descripcion
-Tarea? BuscarTarea(List<Tarea> tareas1 , List<Tarea> tareas2,  string descripcion)
-{
-    foreach (var tarea in tareas1)
-    {
-        if(tarea.Descripcion.Contains(descripcion))
+        if(op!=5)
         {
-            return tarea;
+            do
+            {
+                Console.WriteLine("Ingrese un numero: ");
+                controlNUM=int.TryParse(Console.ReadLine(), out num);
+                if(controlNUM==false)
+                {
+                    Console.WriteLine("No Ingreso un numero, Ingrese nuevamente");
+                }    
+            } while (controlNUM==false);
+
+            switch (op)
+            {
+                case 1:
+                    anterior=calculadora.Resultado;
+                    calculadora.Sumar(num);
+                    var operacion1 = new Operacion(anterior, calculadora.Resultado, TipoOperacion.Suma);
+                    ListaOperaciones.Add(operacion1);
+                break;
+                case 2:
+                    anterior=calculadora.Resultado;
+                    calculadora.Restar(num);
+                    var operacion2 = new Operacion(anterior, calculadora.Resultado, TipoOperacion.Resta);
+                    ListaOperaciones.Add(operacion2);
+                break;
+                case 3:
+                    anterior=calculadora.Resultado;
+                    calculadora.Multiplicar(num);
+                    var operacion3 = new Operacion(anterior, calculadora.Resultado, TipoOperacion.Multiplicacion);
+                    ListaOperaciones.Add(operacion3);
+                break;
+                case 4:
+                    anterior=calculadora.Resultado;
+                    calculadora.Dividir(num);
+                    var operacion4 = new Operacion(anterior, calculadora.Resultado, TipoOperacion.Division);
+                    ListaOperaciones.Add(operacion4);
+                break;
+
+                default:
+                Console.WriteLine("La Operacion Ingresada no existe");
+                break;
+            }
+
+        }else{
+            anterior=calculadora.Resultado;
+            calculadora.Limpiar();
+            var operacion5 = new Operacion(anterior, calculadora.Resultado, TipoOperacion.Limpiar);
+            ListaOperaciones.Add(operacion5);
         }
     }
+    
+} while (op!=0);
 
-    foreach (var tarea in tareas2)
-    {
-        if(tarea.Descripcion.Contains(descripcion))
-        {
-            return tarea;
-        }
-    }
-
-    return null;
+Console.WriteLine("--- LISTA DE OPERACIONES ---");
+foreach (var operacion in ListaOperaciones)
+{
+    operacion.ShowOperacion();
+    Console.WriteLine("-----------");
 }
